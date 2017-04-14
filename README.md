@@ -1,15 +1,17 @@
 # Introduction #
 
-
+This bot automates the processes needed to get credits in the Browsergame www.leitstellenspiel.de
 
 # Explanation #
 
 
 # Open Tasks / Future Features #
 
-* new missions needs to be generated using only the bot
+* new missions need to be generated using only the bot
 * automation of building Fire Stations
 * add more useable cars
+* handle shared accidents in accident list
+* handle timed accidents -> alert fire trucks just before the accident starts
 * handle the case where more Firefighters are needed
 * handle also Ambulances and Police Cars
 
