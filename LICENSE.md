@@ -1,27 +1,3 @@
-# Introduction #
-
-
-
-# Explanation #
-
-
-# Open Tasks / Future Features #
-
-* new missions needs to be generated using only the bot
-* automation of building Fire Stations
-* add more useable cars
-* handle the case where more Firefighters are needed
-* handle also Ambulances and Police Cars
-
-
-# Installation #
-
-To run the python script you need Python 2.7 installed. 
-You also need the packages 'mechanize', 'lxml' and 'requests'.
-When all of the above is installed just run `python main.py` from the console.
-
-# License #
-
 MIT License
 
 Copyright (c) 2017 Joël Renk
