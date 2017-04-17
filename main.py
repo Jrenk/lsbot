@@ -129,7 +129,7 @@ class Main:
             self.accidents[ids[i][idpoint + 6: idpoint + 15]] = {
                 'status': ids[i][statusstartpoint + 8: statusendpoint][-4:-1],
                 'missing': missingarray,
-                'name': ids[i][namestartpoint + 10: nameendpoint][1:]
+                'name': str(ids[i][namestartpoint + 10: nameendpoint][1:]).replace("\u00fc", "ü")
             }
             i = i + 1
 
