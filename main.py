@@ -4,6 +4,7 @@
 from mechanize import Browser
 from lxml.html import fromstring
 from time import *
+from thread import start_new_thread
 import requests
 
 
@@ -40,18 +41,22 @@ class Main:
         self.email = raw_input('Email: ')
         self.password = raw_input('Passwort: ')
         self.login()
-        self.thread()
+
+        while True:
+            start_new_thread(self.thread, ())
+
+            if int(strftime("%M")) % 30 == 0:
+                self.login()
+
+            sleep(5)
 
     def thread(self):
-        print 'hier'
+        print "hier"
         self.get_all_accidents()
 
         for key, accident in self.accidents.iteritems():
             if accident['status'] == 'rot':
                 self.get_accident(key, accident)
-
-        sleep(5)
-        self.thread()
 
     def login(self):
         url = "https://www.leitstellenspiel.de/users/sign_in"
