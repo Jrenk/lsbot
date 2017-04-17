@@ -35,6 +35,7 @@ class Main:
         'GW-A oder AB-Atemschutz': 'GW-A',
         'Ruestwagen oder HLF': 'RW',
         'GW-Oel': u'GW-Öl',
+        '': ''
     }
 
     def __init__(self):
@@ -55,8 +56,10 @@ class Main:
 
         for key, accident in self.accidents.iteritems():
             if accident['status'] == 'rot':
-                self.get_accident(key, accident)
-            # elif accident['status'] == 'elb':
+                if accident['name'] != '"Feuerprobealarm an Schule"':
+                    self.get_accident(key, accident)
+            elif accident['status'] == 'elb':
+                print accident['vehicle_state']
                 # if accident['vehicle_state'] != 1:
                     # self.get_accident(key, accident)
 
@@ -146,7 +149,7 @@ class Main:
         self.parse_available_cars(mission.text)
 
         if accident['missing'] != {'': ''}:
-            for count, string in accident['missing'].keys():
+            for count, string in accident['missing'].iteritems():
                 string = str(string).replace("\u00f6", "oe")
                 string = string.replace("\u00d6", "Oe")
                 string = string.replace("\u00fc", "ue")
@@ -160,7 +163,7 @@ class Main:
                     newcount = int(count) - int(self.fireman_at_accident)
 
                     while t < newcount:
-                        for carid, cartype in self.cars.keys():
+                        for carid, cartype in self.cars.items():
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
@@ -169,7 +172,7 @@ class Main:
                                 break
                 else:
                     while t < int(count):
-                        for carid, cartype in self.cars.keys():
+                        for carid, cartype in self.cars.items():
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
