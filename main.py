@@ -34,7 +34,7 @@ class Main:
         'GW-Messtechnik': 'GW-Messtechnik',
         'GW-A oder AB-Atemschutz': 'GW-A',
         'Ruestwagen oder HLF': 'RW',
-        'GW-Oel': 'GW-Öl',
+        'GW-Oel': u'GW-Öl',
     }
 
     def __init__(self):
@@ -155,7 +155,6 @@ class Main:
 
                     while t < newcount:
                         for carid, cartype in self.cars.iteritems():
-
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
@@ -165,7 +164,6 @@ class Main:
                 else:
                     while t < int(count):
                         for carid, cartype in self.cars.iteritems():
-
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
