@@ -58,8 +58,7 @@ class Main:
             if accident['status'] == 'rot':
                 if accident['name'] != '"Feuerprobealarm an Schule"':
                     self.get_accident(key, accident)
-            elif accident['status'] == 'elb':
-                print accident['vehicle_state']
+            # elif accident['status'] == 'elb':
                 # if accident['vehicle_state'] != 1:
                     # self.get_accident(key, accident)
 
