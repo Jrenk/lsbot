@@ -23,6 +23,12 @@ To run the python script you need Python 2.7 installed.
 You also need the packages 'mechanize', 'lxml' and 'requests'.
 When all of the above is installed just run `python main.py` from the console.
 
+# Disclaimer #
+
+This is my first Python Project. The Code quality could probably be optimized on many levels. 
+
+Using this Bot is against the Rules of the game Leitstellenspiel. Using it could get you banned. Use it on your own risk.
+
 # License #
 
 MIT License
