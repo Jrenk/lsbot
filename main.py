@@ -56,6 +56,9 @@ class Main:
         for key, accident in self.accidents.iteritems():
             if accident['status'] == 'rot':
                 self.get_accident(key, accident)
+            # elif accident['status'] == 'elb':
+                # if accident['vehicle_state'] != 1:
+                    # self.get_accident(key, accident)
 
     def login(self):
         url = "https://www.leitstellenspiel.de/users/sign_in"
@@ -103,6 +106,8 @@ class Main:
             missingendpoint = ids[i].find(',"id":', missingstartpoint)
             namestartpoint = ids[i].find(',"caption":')
             nameendpoint = ids[i].find(',"captionOld":', namestartpoint)
+            vehiclestatestartpoint = ids[i].find(',"vehicle_state":')
+            vehiclestateendpoint = ids[i].find(',"missing_text":', vehiclestatestartpoint)
 
             t = 0
             missingarray = {}
@@ -129,7 +134,8 @@ class Main:
             self.accidents[ids[i][idpoint + 6: idpoint + 15]] = {
                 'status': ids[i][statusstartpoint + 8: statusendpoint][-4:-1],
                 'missing': missingarray,
-                'name': str(ids[i][namestartpoint + 10: nameendpoint][1:]).replace("\u00fc", "ü")
+                'name': str(ids[i][namestartpoint + 10: nameendpoint][1:]).replace("\u00fc", "ü"),
+                'vehicle_state': ids[i][vehiclestatestartpoint + 17: vehiclestateendpoint]
             }
             i = i + 1
 
@@ -140,7 +146,7 @@ class Main:
         self.parse_available_cars(mission.text)
 
         if accident['missing'] != {'': ''}:
-            for count, string in accident['missing'].iteritems():
+            for count, string in accident['missing'].keys():
                 string = str(string).replace("\u00f6", "oe")
                 string = string.replace("\u00d6", "Oe")
                 string = string.replace("\u00fc", "ue")
@@ -154,7 +160,7 @@ class Main:
                     newcount = int(count) - int(self.fireman_at_accident)
 
                     while t < newcount:
-                        for carid, cartype in self.cars.iteritems():
+                        for carid, cartype in self.cars.keys():
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
@@ -163,7 +169,7 @@ class Main:
                                 break
                 else:
                     while t < int(count):
-                        for carid, cartype in self.cars.iteritems():
+                        for carid, cartype in self.cars.keys():
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
