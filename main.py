@@ -3,16 +3,19 @@
 
 from mechanize import Browser
 from lxml.html import fromstring
-from time import sleep
+from time import *
 import requests
 
 
 class Main:
+    email = ''
+    password = ''
     html = ''
     authenticity_token = ''
     accidents = {}
     status = ''
     cars = {}
+    fireman_at_accident = 0
     session = None
     headers = {
         "Content - Type": "application / x - www - form - urlencoded",
@@ -22,6 +25,7 @@ class Main:
     missingcases = {
         'Loeschfahrzeug (LF)': 'LF 20/16',
         'Loeschfahrzeuge (LF)': 'LF 20/16',
+        'Feuerwehrleute': 'LF 20/16',
         'FuStW': 'FuStW',
         'ELW 1': 'ELW 1',
         'ELW 2': 'ELW 2',
@@ -33,13 +37,13 @@ class Main:
     }
 
     def __init__(self):
-        self.main()
-
-    def main(self):
+        self.email = raw_input('Email: ')
+        self.password = raw_input('Passwort: ')
         self.login()
         self.thread()
 
     def thread(self):
+        print 'hier'
         self.get_all_accidents()
 
         for key, accident in self.accidents.iteritems():
@@ -48,10 +52,6 @@ class Main:
 
         sleep(5)
         self.thread()
-
-    def handle_accidents(self):
-        for i, value in enumerate(self.accidents):
-            print value
 
     def login(self):
         url = "https://www.leitstellenspiel.de/users/sign_in"
@@ -62,12 +62,10 @@ class Main:
 
         self.parse_token(response.read())
 
-        email = raw_input('Email: ')
-        password = raw_input('Passwort: ')
         data = {
             'authenticity_token': self.authenticity_token,
-            'user[email]': email,
-            'user[password]': password,
+            'user[email]': self.email,
+            'user[password]': self.password,
             'user[remember_me]': 1,
             'commit': 'Einloggen'
         }
@@ -101,16 +99,26 @@ class Main:
             missingendpoint = ids[i].find(',"id":', missingstartpoint)
 
             t = 0
-
-            missing = ids[i][missingstartpoint + 16: missingendpoint][43:].split(',')
             missingarray = {}
 
-            while t < len(missing):
-                if missing[t][2:][-1:] == '"':
-                    missingarray[missing[t][:2]] = missing[t][2:][:-1]
-                else:
-                    missingarray[missing[t][:2]] = missing[t][2:]
-                t = t + 1
+            if 'Feuerwehrleute' in ids[i][missingstartpoint + 16: missingendpoint]:
+                missing = ids[i][missingstartpoint + 16: missingendpoint][1:].split(',')
+
+                while t < len(missing):
+                    if missing[t][2:][-1:] == '"':
+                        missingarray[int(missing[t][24:26])] = missing[t][27:-2]
+                    else:
+                        missingarray[int(missing[t][24:26])] = missing[t][27:-1]
+                    t = t + 1
+            else:
+                missing = ids[i][missingstartpoint + 16: missingendpoint][43:].split(',')
+
+                while t < len(missing):
+                    if missing[t][2:][-1:] == '"':
+                        missingarray[missing[t][:2]] = missing[t][2:][:-1]
+                    else:
+                        missingarray[missing[t][:2]] = missing[t][2:]
+                    t = t + 1
 
             self.accidents[ids[i][idpoint + 6: idpoint + 15]] = {
                 'status': ids[i][statusstartpoint + 8: statusendpoint][-4:-1],
@@ -121,6 +129,7 @@ class Main:
     def get_accident(self, accidentid, accident):
         mission = self.session.get('https://www.leitstellenspiel.de/missions/' + accidentid)
 
+        self.parse_fireman_at_accident(mission.text)
         self.parse_available_cars(mission.text)
 
         if accident['missing'] != {'': ''}:
@@ -132,19 +141,40 @@ class Main:
                 if string[0] == ' ':
                     string = string[1:]
 
-                for carid, cartype in self.cars.iteritems():
-                    if cartype == self.missingcases[string]:
-                        t = 0
+                t = 0
 
-                        while t < int(count):
-                            self.send_car_to_accident(accidentid, carid)
-                            t = t + 1
-                        break
+                if string == 'Feuerwehrleute':
+                    newcount = int(count) - int(self.fireman_at_accident)
+
+                    while t < newcount:
+                        for carid, cartype in self.cars.iteritems():
+
+                            if cartype == self.missingcases[string]:
+                                self.send_car_to_accident(accidentid, carid)
+                                del self.cars[carid]
+                                t = t + 1
+                                break
+                else:
+                    while t < int(count):
+                        for carid, cartype in self.cars.iteritems():
+
+                            if cartype == self.missingcases[string]:
+                                self.send_car_to_accident(accidentid, carid)
+                                del self.cars[carid]
+                                t = t + 1
+                                break
         else:
             for key, value in self.cars.iteritems():
                 if value == 'LF 20/16':
                     self.send_car_to_accident(accidentid, key)
                     break
+
+    def parse_fireman_at_accident(self, html):
+        tree = fromstring(html)
+        people = tree.xpath('//div[small[contains(., "Feuerwehrleute")]]/small//text()')
+        for value in people:
+            if value[11:-15] == 'Feuerwehrleute':
+                self.fireman_at_accident = value[38:]
 
     def parse_available_cars(self, html):
         tree = fromstring(html)
