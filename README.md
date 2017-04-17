@@ -12,7 +12,6 @@ This bot automates the processes needed to get credits in the Browsergame www.le
 * add more useable cars
 * handle shared accidents in accident list
 * handle timed accidents -> alert fire trucks just before the accident starts
-* handle the case where more Firefighters are needed
 * handle also Ambulances and Police Cars
 * console logging on what is happening 
 

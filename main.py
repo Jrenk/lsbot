@@ -51,7 +51,6 @@ class Main:
             sleep(5)
 
     def thread(self):
-        print "hier"
         self.get_all_accidents()
 
         for key, accident in self.accidents.iteritems():
