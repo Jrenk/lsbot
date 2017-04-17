@@ -32,7 +32,7 @@ class Main:
         'ELW 2': 'ELW 2',
         'Drehleitern (DLK 23)': 'DLK 23',
         'GW-Messtechnik': 'GW-Messtechnik',
-        'GW-Atemschutz': 'GW-A',
+        'GW-A oder AB-Atemschutz': 'GW-A',
         'Ruestwagen oder HLF': 'RW',
         'GW-Oel': 'GW-Öl',
     }
@@ -101,6 +101,8 @@ class Main:
             statusendpoint = ids[i].find(',"caption":', statusstartpoint)
             missingstartpoint = ids[i].find(',"missing_text":')
             missingendpoint = ids[i].find(',"id":', missingstartpoint)
+            namestartpoint = ids[i].find(',"caption":')
+            nameendpoint = ids[i].find(',"captionOld":', namestartpoint)
 
             t = 0
             missingarray = {}
@@ -126,7 +128,8 @@ class Main:
 
             self.accidents[ids[i][idpoint + 6: idpoint + 15]] = {
                 'status': ids[i][statusstartpoint + 8: statusendpoint][-4:-1],
-                'missing': missingarray
+                'missing': missingarray,
+                'name': ids[i][namestartpoint + 10: nameendpoint][1:]
             }
             i = i + 1
 
@@ -155,6 +158,7 @@ class Main:
 
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
+                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
                                 del self.cars[carid]
                                 t = t + 1
                                 break
@@ -164,6 +168,7 @@ class Main:
 
                             if cartype == self.missingcases[string]:
                                 self.send_car_to_accident(accidentid, carid)
+                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
                                 del self.cars[carid]
                                 t = t + 1
                                 break
@@ -171,6 +176,7 @@ class Main:
             for key, value in self.cars.iteritems():
                 if value == 'LF 20/16':
                     self.send_car_to_accident(accidentid, key)
+                    print strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' gesendet'
                     break
 
     def parse_fireman_at_accident(self, html):
