@@ -14,6 +14,8 @@ This bot automates the processes needed to get credits in the Browsergame www.le
 * handle timed accidents -> alert fire trucks just before the accident starts
 * handle also Ambulances and Police Cars
 * handle accidents where cars of type "Schlauchwagen" are needed
+* add error handling
+* solve all encoding problems
 
 # Installation #
 
