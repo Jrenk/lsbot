@@ -6,6 +6,7 @@ from lxml.html import fromstring
 from time import *
 from thread import start_new_thread
 import requests
+import sys
 
 
 class Main:
@@ -35,10 +36,13 @@ class Main:
         'GW-A oder AB-Atemschutz': 'GW-A',
         'Ruestwagen oder HLF': 'RW',
         'GW-Oel': u'GW-Öl',
+        'Schlauchwagen (GW-L2 Wasser': 'SW Kats',
         '': ''
     }
 
     def __init__(self):
+        reload(sys)
+        sys.setdefaultencoding('utf-8')
         self.email = raw_input('Email: ')
         self.password = raw_input('Passwort: ')
         self.login()
@@ -136,7 +140,13 @@ class Main:
             self.accidents[ids[i][idpoint + 6: idpoint + 15]] = {
                 'status': ids[i][statusstartpoint + 8: statusendpoint][-4:-1],
                 'missing': missingarray,
-                'name': str(ids[i][namestartpoint + 10: nameendpoint][1:]).replace("\u00fc", "ü"),
+                'name': str(ids[i][namestartpoint + 10: nameendpoint][1:])
+                .replace("\u00fc", "ü")
+                .replace("\u00f6", "ö")
+                .replace("\u00d6", "Ö")
+                .replace("\u00df", "ß")
+                .replace("\u00e4", "ä")
+                .replace("\u00c4", "Ä"),
                 'vehicle_state': ids[i][vehiclestatestartpoint + 17: vehiclestateendpoint]
             }
             i = i + 1
@@ -159,30 +169,46 @@ class Main:
                 t = 0
 
                 if string == 'Feuerwehrleute':
-                    newcount = int(count) - int(self.fireman_at_accident)
+                    try:
+                        newcount = (int(count) - int(self.fireman_at_accident)) // 9 + 1
+                    except ValueError:
+                        break
 
                     while t < newcount:
                         for carid, cartype in self.cars.items():
                             if cartype == self.missingcases[string]:
-                                self.send_car_to_accident(accidentid, carid)
-                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
-                                del self.cars[carid]
-                                t = t + 1
-                                break
+                                try:
+                                    del self.cars[carid]
+                                    self.send_car_to_accident(accidentid, carid)
+                                    print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
+                                    t = t + 1
+                                    break
+                                except KeyError:
+                                    t = t + 1
+                                    break
                 else:
-                    while t < int(count):
+                    try:
+                        newcount = int(count)
+                    except ValueError:
+                        break
+
+                    while t < newcount:
                         for carid, cartype in self.cars.items():
                             if cartype == self.missingcases[string]:
-                                self.send_car_to_accident(accidentid, carid)
-                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' gesendet'
-                                del self.cars[carid]
-                                t = t + 1
-                                break
+                                try:
+                                    del self.cars[carid]
+                                    self.send_car_to_accident(accidentid, carid)
+                                    print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
+                                    t = t + 1
+                                    break
+                                except KeyError:
+                                    t = t + 1
+                                    break
         else:
-            for key, value in self.cars.iteritems():
+            for key, value in self.cars.items():
                 if value == 'LF 20/16':
                     self.send_car_to_accident(accidentid, key)
-                    print strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' gesendet'
+                    print strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' alarmiert'
                     break
 
     def parse_fireman_at_accident(self, html):
