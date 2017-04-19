@@ -4,7 +4,6 @@
 from mechanize import Browser
 from lxml.html import fromstring
 from time import *
-from thread import start_new_thread
 import requests
 import sys
 
@@ -37,6 +36,7 @@ class Main:
         'Ruestwagen oder HLF': 'RW',
         'GW-Oel': u'GW-Öl',
         'GW-Gefahrgut': 'GW-Gefahrgut',
+        'GW-Hoehenrettung': u'GW-Höhenrettung',
         'Schlauchwagen (GW-L2 Wasser': 'SW Kats',
         '': ''
     }
@@ -49,7 +49,7 @@ class Main:
         self.login()
 
         while True:
-            start_new_thread(self.thread, ())
+            self.thread()
 
             if int(strftime("%M")) % 30 == 0:
                 self.login()
@@ -60,12 +60,9 @@ class Main:
         self.get_all_accidents()
 
         for key, accident in self.accidents.iteritems():
-            if accident['status'] == 'rot':
+            if accident['status'] == 'rot' or accident['status'] == 'elb':
                 if accident['name'] != '"Feuerprobealarm an Schule"':
                     self.get_accident(key, accident)
-            # elif accident['status'] == 'elb':
-                # if accident['vehicle_state'] != 1:
-                    # self.get_accident(key, accident)
 
     def login(self):
         url = "https://www.leitstellenspiel.de/users/sign_in"
@@ -89,6 +86,7 @@ class Main:
 
         request = self.session.post(url, data=data)
         self.parse_token(request.text)
+        print strftime("%H:%M:%S") + ': Erfolgreich Eingeloggt!'
 
     def parse_token(self, html):
         tree = fromstring(html)
@@ -113,8 +111,6 @@ class Main:
             missingendpoint = ids[i].find(',"id":', missingstartpoint)
             namestartpoint = ids[i].find(',"caption":')
             nameendpoint = ids[i].find(',"captionOld":', namestartpoint)
-            vehiclestatestartpoint = ids[i].find(',"vehicle_state":')
-            vehiclestateendpoint = ids[i].find(',"missing_text":', vehiclestatestartpoint)
 
             t = 0
             missingarray = {}
@@ -148,14 +144,16 @@ class Main:
                 .replace("\u00df", "ß")
                 .replace("\u00e4", "ä")
                 .replace("\u00c4", "Ä"),
-                'vehicle_state': ids[i][vehiclestatestartpoint + 17: vehiclestateendpoint]
+                'vehicle_state': ''
             }
             i = i + 1
 
     def get_accident(self, accidentid, accident):
         mission = self.session.get('https://www.leitstellenspiel.de/missions/' + accidentid)
 
-        self.parse_fireman_at_accident(mission.text)
+        if not self.parse_cars_needed(mission.text):
+            return
+
         self.parse_available_cars(mission.text)
 
         if accident['missing'] != {'': ''}:
@@ -170,6 +168,7 @@ class Main:
                 t = 0
 
                 if string == 'Feuerwehrleute':
+                    self.parse_fireman_at_accident(mission.text)
                     try:
                         newcount = (int(count) - int(self.fireman_at_accident)) // 9 + 1
                     except ValueError:
@@ -203,6 +202,16 @@ class Main:
                     self.send_car_to_accident(accidentid, key)
                     print strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' alarmiert'
                     break
+
+    @staticmethod
+    def parse_cars_needed(html):
+        tree = fromstring(html)
+        vehicle_state = tree.xpath('//h4[@id="h2_vehicle_driving"]//text()')
+
+        if vehicle_state == ['Fahrzeuge auf Anfahrt']:
+            return False
+        else:
+            return True
 
     def parse_fireman_at_accident(self, html):
         tree = fromstring(html)
