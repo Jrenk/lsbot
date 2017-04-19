@@ -4,6 +4,7 @@
 from mechanize import Browser
 from lxml.html import fromstring
 from time import *
+from thread import start_new_thread
 import requests
 import sys
 
@@ -49,12 +50,12 @@ class Main:
         self.login()
 
         while True:
-            self.thread()
+            start_new_thread(self.thread, ())
 
-            if int(strftime("%M")) % 30 == 0:
+            if int(strftime("%M")) % 30 == 0 and int(strftime("%S") < 10):
                 self.login()
 
-            sleep(5)
+            sleep(10)
 
     def thread(self):
         self.get_all_accidents()
@@ -172,7 +173,7 @@ class Main:
                     try:
                         newcount = (int(count) - int(self.fireman_at_accident)) // 9 + 1
                     except ValueError:
-                        break
+                        newcount = 0
 
                     while t < newcount:
                         for carid, cartype in self.cars.items():
@@ -186,7 +187,7 @@ class Main:
                     try:
                         newcount = int(count)
                     except ValueError:
-                        break
+                        newcount = 0
 
                     while t < newcount:
                         for carid, cartype in self.cars.items():
@@ -197,11 +198,12 @@ class Main:
                                 t = t + 1
                                 break
         else:
-            for key, value in self.cars.items():
-                if value == 'LF 20/16':
-                    self.send_car_to_accident(accidentid, key)
-                    print strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' alarmiert'
-                    break
+            if accident['status'] == 'rot':
+                for key, value in self.cars.items():
+                    if value == 'LF 20/16':
+                        self.send_car_to_accident(accidentid, key)
+                        print strftime("%H:%M:%S") + ': ' + value + ' zu ' + accident['name'] + ' alarmiert'
+                        break
 
     @staticmethod
     def parse_cars_needed(html):
