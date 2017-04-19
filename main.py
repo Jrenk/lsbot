@@ -177,15 +177,11 @@ class Main:
                     while t < newcount:
                         for carid, cartype in self.cars.items():
                             if cartype == self.missingcases[string]:
-                                try:
-                                    del self.cars[carid]
-                                    self.send_car_to_accident(accidentid, carid)
-                                    print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
-                                    t = t + 1
-                                    break
-                                except KeyError:
-                                    t = t + 1
-                                    break
+                                self.send_car_to_accident(accidentid, carid)
+                                del self.cars[carid]
+                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
+                                t = t + 1
+                                break
                 else:
                     try:
                         newcount = int(count)
@@ -195,15 +191,11 @@ class Main:
                     while t < newcount:
                         for carid, cartype in self.cars.items():
                             if cartype == self.missingcases[string]:
-                                try:
-                                    del self.cars[carid]
-                                    self.send_car_to_accident(accidentid, carid)
-                                    print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
-                                    t = t + 1
-                                    break
-                                except KeyError:
-                                    t = t + 1
-                                    break
+                                self.send_car_to_accident(accidentid, carid)
+                                del self.cars[carid]
+                                print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
+                                t = t + 1
+                                break
         else:
             for key, value in self.cars.items():
                 if value == 'LF 20/16':
