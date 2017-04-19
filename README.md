@@ -22,6 +22,12 @@ To run the python script you need Python 2.7 installed.
 You also need the packages 'mechanize', 'lxml' and 'requests'.
 When all of the above is installed just run `python main.py` from the console.
 
+# Usage #
+
+Since the bot is not able to generate new Missions (yet), you need to have a Browser Window with the game open at all
+times. You could install a plugin which refreshes the site every 1 minute. Then it's guaranteed that you get new missions.
+You could easily run this setup on a Raspberry Pi.
+
 # Disclaimer #
 
 This is my first Python Project. The Code quality could probably be optimized on many levels. 

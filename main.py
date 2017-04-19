@@ -176,7 +176,7 @@ class Main:
 
                     while t < newcount:
                         for carid, cartype in self.cars.items():
-                            if cartype == self.missingcases[string]:
+                            if cartype == self.missingcases[string] and carid in self.cars:
                                 self.send_car_to_accident(accidentid, carid)
                                 del self.cars[carid]
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
@@ -190,7 +190,7 @@ class Main:
 
                     while t < newcount:
                         for carid, cartype in self.cars.items():
-                            if cartype == self.missingcases[string]:
+                            if cartype == self.missingcases[string] and carid in self.cars:
                                 self.send_car_to_accident(accidentid, carid)
                                 del self.cars[carid]
                                 print strftime("%H:%M:%S") + ': ' + cartype + ' zu ' + accident['name'] + ' alarmiert'
