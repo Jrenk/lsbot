@@ -36,6 +36,7 @@ class Main:
         'GW-A oder AB-Atemschutz': 'GW-A',
         'Ruestwagen oder HLF': 'RW',
         'GW-Oel': u'GW-Öl',
+        'GW-Gefahrgut': 'GW-Gefahrgut',
         'Schlauchwagen (GW-L2 Wasser': 'SW Kats',
         '': ''
     }
