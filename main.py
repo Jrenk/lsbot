@@ -9,6 +9,11 @@ import requests
 import sys
 
 
+class DevNull:
+    def write(self, msg):
+        pass
+
+
 class Main:
     email = ''
     password = ''
@@ -45,6 +50,7 @@ class Main:
     def __init__(self):
         reload(sys)
         sys.setdefaultencoding('utf-8')
+        sys.stderr = DevNull()
         self.email = raw_input('Email: ')
         self.password = raw_input('Passwort: ')
         self.login()
